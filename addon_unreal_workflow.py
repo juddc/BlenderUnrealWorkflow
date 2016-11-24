@@ -375,6 +375,52 @@ class SelectCollisionMeshes(bpy.types.Operator):
 
 
 
+class ResetColliderOrigin(bpy.types.Operator):
+    """
+    Sets the origin of all selected colliders to the origin of the mesh each represents.
+    """
+    bl_idname = "unrealworkflow.resetcolliderorigin"
+    bl_label = "Reset Collider Origin"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        """
+        Fix collider origin
+        """
+        # save the cursor location so we can restore it when we're done
+        cursor_loc = (
+            context.scene.cursor_location[0],
+            context.scene.cursor_location[1],
+            context.scene.cursor_location[2])
+
+        colliders = []
+
+        for obj in context.selected_objects:
+            name, index = parse_ucx(obj.name)
+            if name is None:
+                self.report({"ERROR"}, "Selected object '%s' is not a collider" % obj.name)
+                return {"CANCELLED"}
+            elif name in context.scene.objects:
+                colliders.append( (obj, context.scene.objects[name]) )
+            else:
+                self.report({"ERROR"}, "No base object found: %s" % name)
+                return {"CANCELLED"}
+
+        for collider, base in colliders:
+            bpy.ops.object.select_all(action='DESELECT')
+            base.select = True
+            bpy.ops.view3d.snap_cursor_to_selected()
+            base.select = False
+            collider.select = True
+            bpy.ops.object.origin_set(type="ORIGIN_CURSOR")
+
+        # restore cursor to where it was before using this tool
+        context.scene.cursor_location = cursor_loc
+
+        return {'FINISHED'}
+
+
+
 class UnrealExporter(bpy.types.Operator):
     """
     Export FBX files for use with Unreal Engine 4
@@ -589,6 +635,9 @@ class MeshToolsPanel(bpy.types.Panel):
         col.operator("unrealworkflow.createcollision", icon="OUTLINER_DATA_MESH")
         col.separator()
 
+        col.operator("unrealworkflow.resetcolliderorigin", icon="SNAP_VERTEX")
+        col.separator()
+
         col.operator("unrealworkflow.selectcollisionmeshes", icon="UV_SYNC_SELECT")
         col.separator()
 
@@ -656,6 +705,7 @@ Classes = [
     UVCubeProjectModifier,
     SetCollisionMeshDrawType,
     CreateCollision,
+    ResetColliderOrigin,
     SelectCollisionMeshes,
     RenameCollisionMeshes,
     UnrealExporter,
