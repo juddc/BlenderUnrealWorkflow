@@ -229,7 +229,7 @@ class UVCubeProjectModifier(bpy.types.Operator):
 
 class SetCollisionMeshDrawType(bpy.types.Operator):
     """
-    Simple operator for setting the draw type of all UCX_ collision meshes at once.
+    Set the draw type of all UCX_ collision meshes at once.
     """
     bl_idname = "unrealworkflow.setcollisionmesh_drawtype"
     bl_label = "Set Collision Mesh Draw Type"
@@ -258,7 +258,8 @@ class SetCollisionMeshDrawType(bpy.types.Operator):
 
 class CreateCollision(bpy.types.Operator):
     """
-    Quick way to start building a collider
+    Makes a copy of the selected mesh, marks the copy as a collider, and sets the
+    draw type to Wireframe.
     """
     bl_idname = "unrealworkflow.createcollision"
     bl_label = "Create Collision"
@@ -292,8 +293,9 @@ class CreateCollision(bpy.types.Operator):
 
 class RenameCollisionMeshes(bpy.types.Operator):
     """
-    Clean up collision mesh naming. Fixes up existing ones and adds all selected
-    meshes that aren't the active one as additional UCX meshes.
+    Using the active selected mesh as the base object, takes all other selected
+    meshes as well as any other meshes currently matching the base object with a
+    UCX_ prefix and renames them to have consistent naming and numbering.
     """
     bl_idname = "unrealworkflow.renamecollisionmeshes"
     bl_label = "Rename Collision Meshes"
@@ -340,7 +342,7 @@ class RenameCollisionMeshes(bpy.types.Operator):
 
 class SelectCollisionMeshes(bpy.types.Operator):
     """
-    Select all meshes that are marked as colliders for the selected mesh
+    Select all meshes that are marked as colliders (UCX_ prefix) for the selected mesh
     """
     bl_idname = "unrealworkflow.selectcollisionmeshes"
     bl_label = "Select Collision Meshes"
@@ -375,7 +377,7 @@ class SelectCollisionMeshes(bpy.types.Operator):
 
 class UnrealExporter(bpy.types.Operator):
     """
-    Operator for exporting FBX files for Unreal Engine 4
+    Export FBX files for use with Unreal Engine 4
     """
     bl_idname = "unrealworkflow.exporter"
     bl_label = "Export to Unreal"
